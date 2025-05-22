@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# exit immediately, if any command fails
+set -e
+
+if [ -z "${1}" ] || [ "${1}" == '-h' ] || [ "${1}" == '--help' ]; then
+	echo 'Echoes the passed message.'
+	echo
+	echo "Usage: ${0} 'message'"
+	echo
+	echo '  -t, --times'
+	echo '                  Specifies how many times to echo the message.'
+	echo '  -s, --shout'
+	echo '                  Whether or not to "shout", i.e. convert to upper case.'
+	echo
+	echo 'Examples:'
+	echo "${0} 'example message'"
+	echo "${0} --times 3 --shout 'another message'"
+	echo
+	exit 0
+fi
+
+TIMES=1
+SHOUT=false
+MESSAGE=''
+
+# parse arguments
+while [[ $# -gt 0 ]]; do
+	case "${1}" in
+		-t | --times)
+			if [ -z "${2}" ]; then
+				echo 'Error: --times requires a number.'
+				exit 1
+			fi
+			if ! [[ "${2}" =~ ^[1-9][0-9]*$ ]]; then
+				echo "Error: --times requires a positive integer and not '${2}'."
+				exit 1
+			fi
+			TIMES="${2}"
+			shift 2
+			;;
+		-s | --shout)
+			SHOUT=true
+			shift
+			;;
+		*)
+			MESSAGE="${1}"
+			shift
+			;;
+	esac
+done
+
+if [ -z "$MESSAGE" ]; then
+	echo "Error: No message provided. Run '${0} --help' for usage information."
+	exit 1
+fi
+
+if $SHOUT; then
+	MESSAGE=$(echo "$MESSAGE" | tr '[:lower:]' '[:upper:]')
+fi
+
+for ((i=0; i<TIMES; i++)); do
+	echo "$MESSAGE"
+done
